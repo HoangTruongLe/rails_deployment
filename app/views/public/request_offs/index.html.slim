@@ -1,0 +1,36 @@
+br
+.row
+  .col-lg-12
+    .panel.panel-default
+      .panel-heading
+        | Request List
+        .pull-right
+          = link_to 'New', new_request_off_path, class: "btn btn-primary"
+        p
+      .panel-body
+        #list_request_offs.table-responsive
+          table.table.table-striped.table-bordered.table-hover
+            thead
+              tr
+                th.text-center Status
+                th.text-center Time Start
+                th.text-center Time End
+                th.text-center Total hours
+                th.text-center Reason
+            tbody#reload
+              - @request_offs.each do |request_off|
+                tr
+                  td.text-center.col-sm-2
+                    span.btn-sm class="#{status_css_color(request_off.status)}" = request_off.status
+                  td.col-sm-2.text-center = format_date_time_vn(request_off.time_start)
+                  td.col-sm-2.text-center = format_date_time_vn(request_off.time_end)
+                  td.col-sm-2.text-center = request_off.total_hours
+                  td.col-sm-2.text-center = link_to 'View Detail', request_off_path(request_off), class: "view_detail", data: {toggle: 'tooltip'}, title: "#{request_off.reason}"
+    .text-center
+      = will_paginate(@request_offs, renderer: BootstrapPagination::Rails)
+
+javascript:
+  $('[data-toggle="tooltip"]').tooltip();
+  $('.view_detail').unbind('click').bind("click", function () {
+    $('.tooltip').remove();
+  });

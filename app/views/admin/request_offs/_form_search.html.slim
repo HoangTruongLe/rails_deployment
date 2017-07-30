@@ -1,0 +1,18 @@
+.col-sm-12
+  = form_tag admin_request_offs_path, method: :get, id: 'request_off_search' do
+    = hidden_field_tag :search, true
+    .row
+      .col-sm-3
+        = select_tag :user_id, options_for_select(User.all.collect{ |x| [x.full_name, x.id] }, params[:user_id]), {include_blank: 'Name', class: 'form-control', id: 'select2'}
+      .col-sm-2
+        = text_field_tag :created_at, params[:created_at], id: 'created_at_picker', class: 'form-control', placeholder: 'Date'
+      .col-sm-2
+        = select_tag :status,  options_for_select(RequestOff.status_request.values.collect{ |x| [x] }, params[:status]), {include_blank: 'Status', class: 'form-control'}
+      .col-sm-3
+        = select_tag :status_update_by, options_for_select(User.get_all_admin.collect{ |x| [x.full_name, x.id] }, params[:status_update_by]), {include_blank: 'Assignee', class: 'form-control'}
+      .col-sm-2
+        = submit_tag 'Search', class: 'btn btn-default'
+    br
+javascript:
+  $("#select2").select2({
+  });

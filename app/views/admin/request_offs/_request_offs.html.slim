@@ -1,0 +1,181 @@
+= render partial: 'form_search'
+button.btn.btn-info.btn-print[data-url="#{admin_print_url}"]
+  i.fa.fa-print &nbsp;
+    | Print
+|&nbsp;&nbsp;&nbsp;
+= form_tag admin_upload_path, multipart: true, class: "hidden" do
+  = file_field_tag :import_file, class: "jfile", accept: ".docx"
+  = submit_tag "Import", id: "jimport"
+= link_to "javascript:void(0)", class: "btn btn-info jupload" do
+  i.fa.fa-upload &nbsp;
+    | Upload Template
+p
+table.table.table-striped.table-bordered.table-hover
+  thead
+    tr
+      th.text-center
+        input type='checkbox' id='check_all'
+      th.text-center Status
+      th.text-center Employee
+      th.text-center Start time - End time
+      th.text-center Total hour
+      th.text-center Reason
+      th
+  tbody#reload
+    - request_offs.each do |request_off|
+      tr
+        td.text-center
+          - if request_off.status == 'accepted'
+            input type='checkbox' class='check_one' data-request-id="#{request_off.id}"
+        td.text-center
+          span.btn-sm class="#{status_css_color(request_off.status)}" =request_off.status
+        td = link_to request_off.user.full_name, admin_request_off_path(request_off)
+        td.text-center = "#{format_date_time_vn(request_off.time_start)} - #{format_date_time_vn(request_off.time_end)}"
+        td.text-center = request_off.total_hours
+        td.text-center = link_to 'View Detail', admin_request_off_path(request_off), class: "view_detail", data: { toggle: 'tooltip' }, title: "#{request_off.reason}"
+        td
+          -if request_off.status == "waiting"
+            = link_to 'accept','', class: 'btn-sm btn-success action_request', onclick: "show_modal_confirm(#{request_off.id});",remote: true, data: { id: request_off.id, toggle: 'modal'}
+            | &nbsp;
+          -elsif request_off.status == 'accepted'
+            = format_date_time_vn(request_off.status_update_at)
+            | &nbsp;
+            = "( by " + User.find_by(id: request_off.status_update_by).full_name + " )"
+          -if request_off.status == "waiting"
+            =link_to 'reject','', remote: true, class: "btn-sm btn-danger", onclick: "show_modal_reject(#{request_off.id});", data: { toggle: 'modal' }
+          - elsif request_off.status == 'rejected'
+            = format_date_time_vn(request_off.status_update_at)
+            | &nbsp;
+            = "( by " + User.find_by(id: request_off.status_update_by).full_name + " )"
+
+#confirm.modal.fade role="dialog"
+  .modal-dialog
+    .modal-content
+      .modal-header
+        button.close data-dismiss="modal" type="button"  &times;
+        h4.modal-title Are you realy want to accept this request?
+        input.hidden#id_user_request type="text" value=""
+      .modal-footer
+        button.btn.btn-default data-dismiss="modal" type="button"  Close
+        button.btn.btn-success#confirm_request data-dismiss="modal" type="button"  Ok
+
+#reject.modal.fade role="dialog"
+  .modal-dialog
+    .modal-content
+      .modal-header
+        button.close data-dismiss="modal" type="button"  &times;
+        h4.modal-title Comment
+      .modal-body
+        span#error style="color: red;"
+        input.hidden#id_user type="text" value=""
+        textarea.form-control#comment_reject rows="6"
+      .modal-footer
+        button.btn.btn-default data-dismiss="modal" type="button"  Close
+        button.btn.btn-danger#reject_request data-dismiss="modal" type="button"  Ok
+
+#print-modal.modal.fade role="dialog"
+  .modal-dialog
+    .modal-content
+      .modal-header
+        button.close data-dismiss="modal" type="button"  &times;
+        h4.modal-title please you choose accepted to print?
+      .modal-footer
+        button.btn.btn-default data-dismiss="modal" type="button"  Close
+#upload-modal.modal.fade role="dialog"
+  .modal-dialog
+    .modal-content
+      .modal-header
+        button.close data-dismiss="modal" type="button"  &times;
+        h4.modal-title The template has been uploaded successfully!
+      .modal-footer
+        button.btn.btn-default data-dismiss="modal" type="button"  Close
+javascript:
+  function show_modal_confirm(id){
+    $('#confirm').modal('show');
+    $('#id_user_request').val(id);
+  }
+  function show_modal_reject(id){
+    $('#reject').modal('show');
+    $('#id_user').val(id);
+  }
+  $('#reject').on('hidden.bs.modal', function(){
+    $('#comment_reject').val('');
+    $('#comment_reject').css('border', '1px solid #ccc')
+    $('#error').text('')
+  });
+
+  $('[data-toggle="tooltip"]').tooltip();
+  $('.view_detail').unbind('click').bind("click", function (){
+    $('.tooltip').remove();
+  });
+
+  $('#created_at_picker').datetimepicker({timepicker: false, format: 'Y/m/d'});
+  $('#confirm_request').unbind('click').bind('click', function(){
+    var id = $('#id_user_request').val();
+    $.ajax({
+        method: 'GET',
+        url: "/admin/request_offs/" + id + "/accept",
+        success: function (res) {
+          $('#reload').load(location.href + " #reload>*", "");
+        }
+      });
+  });
+  $('#reject_request').unbind('click').bind('click', function(){
+    var id = $('#id_user').val();
+    var comment = $('#comment_reject').val();
+    if(comment == ''){
+      $('#error').text('Please enter comment');
+      $('#reject_request').removeAttr('data-dismiss');
+      $('#comment_reject').css('border', '1px solid #ff0000')
+    }else{
+      $('#reject_request').attr('data-dismiss', 'modal');
+      $.ajax({
+        method: 'GET',
+        url: "/admin/request_offs/" + id + "/reject",
+        data: {comment: comment},
+        success: function (res) {
+          $('#reload').load(location.href + " #reload>*", "");
+        }
+      });
+    }
+  });
+  $checkBoxes = $(".check_one");
+  $("#check_all").change(function (e) {
+    $checkBoxes.prop("checked", this.checked);
+  });
+  $('.jupload').click(function () {
+    $('input.jfile').click();
+  });
+  $('input.jfile').change(function () {
+    var oFile = $(".jfile")[0].files[0];
+    if (oFile === undefined) {
+      return true;
+    }
+    import_file = oFile;
+    data = new FormData();
+    data.append('import_file', import_file);
+    $(".jfile").val('');
+    $.ajax({
+      url: '/admin/upload',
+      type: 'POST',
+      data: data,
+      contentType: false,
+      processData: false,
+      success: function (data) {
+        $('#upload-modal').modal('show');
+      }
+    });
+  });
+  $('.btn-print').click(function () {
+    var count = $('.check_one:checked').length;
+    if(count == 0){
+      $("#print-modal").modal('show');
+    }else{
+      request_ids = [];
+      $('.check_one:checked').each(function () {
+        request_ids.push($(this).data('request-id'));
+      });
+      url = $(this).data('url');
+      window.open(url + "?request_ids=" + request_ids)
+    }
+  })

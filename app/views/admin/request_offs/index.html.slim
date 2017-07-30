@@ -1,0 +1,14 @@
+br
+.row
+  .col-lg-12
+    .panel.panel-default
+      .panel-heading
+        | Request List
+        p
+      .panel-body
+        #list_request_offs.table-responsive
+          = render 'admin/request_offs/request_offs', request_offs: @request_offs
+        /! /.table-responsive
+      /! /.panel-body
+    .text-center
+      = will_paginate(@request_offs, renderer: BootstrapPagination::Rails)

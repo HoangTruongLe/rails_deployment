@@ -1,0 +1,58 @@
+.row
+  .col-lg-12
+    p
+.row
+  .col-lg-12
+    .panel.panel-default
+      .panel-heading
+        | Departments List
+        .pull-right
+          = link_to 'New', new_admin_department_path, class: 'btn btn-sm btn-primary'
+        p
+      .panel-body
+        .table-responsive
+          table.table.table-striped.table-bordered.table-hover
+            colgroup
+              col width='70%'
+              col width='30%'
+            thead
+              tr
+                th Name
+                th Actions
+            tbody#reload_department
+              - @departments.each do |department|
+                tr
+                  td
+                    = link_to department.name, admin_department_path(department)
+                  td
+                    .btn-toolbar
+                      = link_to 'Edit', edit_admin_department_path(department), class: 'btn btn-info'
+                      = link_to 'Delete', '', class: 'btn btn-danger', onclick: "show_modal_delete(#{department.id});", remote: true, data: {toggle: 'modal'}
+          = will_paginate(@departments, renderer: BootstrapPagination::Rails)
+
+#show_modal.modal.fade role="dialog"
+  .modal-dialog
+    .modal-content
+      .modal-header
+        button.close data-dismiss="modal" type="button"  &times;
+        input.hidden#id_department type="text" value=""
+        h4.modal-title Confirm Delete
+      .modal-footer
+        button.btn.btn-default data-dismiss="modal" type="button"  Close
+        button.btn.btn-danger#confirm_delete data-dismiss="modal" type="button"  Ok
+
+javascript:
+  function show_modal_delete(id){
+    $('#show_modal').modal('show');
+    $('#id_department').val(id);
+  }
+  $('#confirm_delete').click(function(){
+    var id = $('#id_department').val();
+      $.ajax({
+        method: 'DELETE',
+        url: "/admin/departments/"+id,
+        success: function (res) {
+          $('#reload_department').load(location.href + " #reload_department>*", "");
+        }
+      });
+  });

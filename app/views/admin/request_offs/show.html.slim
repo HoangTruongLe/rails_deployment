@@ -1,0 +1,119 @@
+br
+.row
+  .col-lg-12
+    .panel class="#{status_css_color_panel(@request_off.status)}"
+      .panel-heading
+        = link_to @request_off.user.full_name, admin_user_path(@request_off.user), class: "btn btn-info"
+        .pull-right
+          = link_to 'Back', admin_request_offs_path, class: "btn btn-info"
+      .panel-body
+        .row
+          .col-md-6
+            p
+              strong From:
+              | &nbsp;
+              = format_date_time_vn(@request_off.time_start)
+              p
+                strong To:
+                | &nbsp;
+                = format_date_time_vn(@request_off.time_end)
+              p
+                strong Total hour:
+                | &nbsp;
+                = @request_off.total_hours
+              p
+                strong Status:
+                span.btn-sm class="#{status_css_color(@request_off.status)}"= @request_off.status
+              - if @request_off.status_update_at
+                p
+                  strong Status update at:
+                  | &nbsp;
+                  = format_date_time_vn(@request_off.status_update_at)
+                p
+                  strong Status update by:
+                  | &nbsp;
+                  = User.find_by_id(@request_off.status_update_by).try(:full_name)
+          .col-md-6
+            p
+              strong Reason:
+              .reason = @request_off.reason
+            - if @request_off.status == 'rejected'
+              p
+                strong Reason Reject:
+                .reason style="color: red;" = @request_off.comment
+      .panel-footer
+        .row
+          .col-sm-4.col-sm-offset-5
+            -if @request_off.status == "waiting"
+              =link_to 'Accept', '', class: "btn btn-success", onclick: "show_modal_confirm_off(#{@request_off.id});" ,remote: true, data: {toggle: 'modal'}
+              | &nbsp;
+              =link_to 'reject', '', class: "btn btn-danger", onclick: "show_modal_reject_off(#{@request_off.id});", data: { toggle: 'modal' }, remote: true
+
+#accept_off.modal.fade role="dialog"
+  .modal-dialog
+    .modal-content
+      .modal-header
+        button.close data-dismiss="modal" type="button"  &times;
+        h4.modal-title Are you realy want to accept this request?
+        input.hidden#id_user_off type="text" value=""
+      .modal-footer
+        button.btn.btn-default data-dismiss="modal" type="button"  Close
+        button.btn.btn-success#confirm_request_off data-dismiss="modal" type="button"  Ok
+
+#reject_off.modal.fade role="dialog"
+  .modal-dialog
+    .modal-content
+      .modal-header
+        button.close data-dismiss="modal" type="button"  &times;
+        h4.modal-title Comment
+      .modal-body
+        span.error style="color: red;"
+        input.hidden#id_user_off type="text" value=""
+        textarea.form-control#comment_reject_off rows="6"
+      .modal-footer
+        button.btn.btn-default data-dismiss="modal" type="button"  Close
+        button.btn.btn-danger#reject_request_off data-dismiss="modal" type="button"  Ok
+javascript:
+  function show_modal_confirm_off(id) {
+    $('#accept_off').modal('show');
+    $('#id_user_off').val(id);
+  }
+  function show_modal_reject_off(id) {
+    $('#reject_off').modal('show');
+    $('#id_user_off').val(id);
+  }
+  $('#reject').on('hidden.bs.modal', function () {
+    $('#comment_reject_off').val('');
+    $('#comment_reject_off').css('border', '1px solid #ccc')
+    $('.error').text('')
+  });
+
+  $('#confirm_request_off').unbind('click').bind('click', function(){
+    var id = $('#id_user_off').val();
+    $.ajax({
+      method: 'GET',
+      url: "/admin/request_offs/" + id + "/accept",
+      success: function (res) {
+        location.reload();
+      }
+    });
+  });
+  $('#reject_request_off').unbind('click').bind('click', function(){
+    var id = $('#id_user_off').val();
+    var comment = $('#comment_reject_off').val();
+    if (comment == '') {
+      $('.error').text('Please enter comment');
+      $('#reject_request_off').removeAttr('data-dismiss');
+      $('#comment_reject_off').css('border', '1px solid #ff0000')
+    }else{
+      $('#reject_request_off').attr('data-dismiss', 'modal');
+      $.ajax({
+        method: 'GET',
+        url: "/admin/request_offs/" + id + "/reject",
+        data: {comment: comment},
+        success: function (res) {
+          location.reload();
+        }
+      });
+    }
+  });

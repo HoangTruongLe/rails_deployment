@@ -1,0 +1,24 @@
+.row
+  .col-lg-12
+    p
+.row
+  .col-lg-12
+    .panel.panel-default
+      .panel-heading
+        | Edit Department
+      .panel-body
+        = form_for(@department, url: admin_department_path, method: :put) do |f|
+          .col-lg-6
+            - if @department.errors.any?
+              .panel.panel-danger
+                .panel-heading
+                  | Errors
+                .panel-body
+                  - @department.errors.full_messages.each do |message|
+                    li
+                      = message
+            .form-group
+              = f.label_tag :name
+              = f.text_field :name, class: 'form-control'
+            .form-group
+              = f.submit 'Save', class: 'btn btn-primary'

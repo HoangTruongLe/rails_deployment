@@ -1,0 +1,123 @@
+.col-lg-6
+  = form_for @request_off do |f|
+    - if @request_off.errors.any?
+      .alert.alert-danger
+        ul
+          - @request_off.errors.full_messages.each do |message|
+            li = message
+    .form-group
+      .col-sm-3
+        = f.label_tag :time_start, nil, class: 'control-label'
+      .col-sm-8
+        = f.text_field :time_start, class: 'form-control', id: 'time_start_picker'
+    .form-group
+      .col-sm-3
+        = f.label_tag :time_end, nil, class: 'control-label'
+      .col-sm-8
+        = f.text_field :time_end, class: 'form-control', id: 'time_end_picker'
+    .form-group
+      .col-sm-3
+        = f.label_tag :reason, nil, class: 'control-label'
+      .col-sm-8
+        = f.text_area :reason, rows:5, class: 'form-control'
+    .form-group
+      .col-sm-3
+        = f.label_tag 'assign', nil, class: 'control-label'
+      .col-sm-8
+        = f.select(:status_update_by, User.where(role: 'admin').deleted_at_as_0.pluck(:first_name, :id), {include_blank: 'choose assignee'}, {class: 'form-control'})
+    .form-group
+      .col-sm-3
+      .col-sm-6
+        = f.submit 'save', class: 'col-sm-3 btn btn-primary'
+
+javascript:
+  $('#time_start_picker').datetimepicker({
+    onShow: function (ct) {
+      this.setOptions({
+        maxDate: $('#time_end_picker').val() ? $('#time_end_picker').val().slice(0,10) : false
+      })
+    },
+    timepicker: true, step: 30,
+    onGenerate: function () {
+      if ($('#time_end_picker').val()) {
+        $.each($('.xdsoft_today'), function (i, todaySelector) {
+          if (i == 0) {
+            var start_date = new Date($(todaySelector).data('year') + "/" + ($(todaySelector).data('month') + 1) + "/" + $(todaySelector).data('date'))
+            var end_date =  new Date($('#time_end_picker').val())
+            if (start_date.toDateString() == end_date.toDateString()) {
+              $.each($('.xdsoft_time'), function (i, time) {
+                var time_start_date = new Date(start_date.toDateString() + ' ' + $(time).data('hour') + ':' + $(time).data('minute'))
+                if (time_start_date >= end_date) {
+                  $(time).addClass('xdsoft_disabled')
+                } else {
+                  $(time).removeClass('xdsoft_disabled')
+                }
+              })
+            }
+          }
+        })
+      }
+      if ($('#time_end_picker').val() && $('#time_start_picker').val()) {
+        $.each($('.xdsoft_time'), function (i, time) {
+          var time_start_date = new Date($('#time_start_picker').val().slice(0, 10) + ' ' + $(time).data('hour') + ':' + $(time).data('minute'))
+          var time_end_date = new Date($('#time_end_picker').val())
+          if (time_start_date >= time_end_date) {
+            $(time).addClass('xdsoft_disabled')
+          } else {
+            $(time).removeClass('xdsoft_disabled')
+          }
+        });
+      }
+    }
+  });
+
+  $('#time_end_picker').datetimepicker({
+    onShow: function (ct) {
+      this.setOptions({
+        minDate: $('#time_start_picker').val() ? $('#time_start_picker').val().slice(0,10) : false
+      })
+    },
+    timepicker: true, step: 30,
+    onGenerate: function () {
+      if ($('#time_start_picker').val()){
+        $.each($('.xdsoft_today'), function (i, todaySelector) {
+          if (i == 1) {
+            var start_date = new Date($('#time_start_picker').val())
+            var end_date = new Date($(todaySelector).data('year') + "/" + ($(todaySelector).data('month')+1) + "/" + $(todaySelector).data('date'))
+            if (start_date.toDateString() == end_date.toDateString()) {
+              $.each($('.xdsoft_time'), function (i, time) {
+                var time_end_date = new Date(end_date.toDateString() + ' ' + $(time).data('hour') + ':' + $(time).data('minute'))
+                if (time_end_date <= start_date) {
+                  $(time).addClass('xdsoft_disabled')
+                } else {
+                  $(time).removeClass('xdsoft_disabled')
+                }
+              })
+            }
+          }
+        })
+      }
+      if ($('#time_end_picker').val() && $('#time_start_picker').val()) {
+        $.each($('.xdsoft_time'), function (i, time) {
+          var time_start_date = new Date($('#time_start_picker').val())
+          var time_end_date = new Date($('#time_end_picker').val().slice(0, 10) + ' ' + $(time).data('hour') + ':' + $(time).data('minute'))
+          if (time_end_date <= time_start_date) {
+            $(time).addClass('xdsoft_disabled')
+          } else {
+            $(time).removeClass('xdsoft_disabled')
+          }
+        });
+      }
+    }
+  });
+  
+  $('#time_start_picker').focusout(function () {
+    var start_date = new Date($('#time_start_picker').val())
+    var end_date = new Date($('#time_end_picker').val())
+    if (start_date >= end_date) $('#time_start_picker').val("")
+  })
+  $('#time_end_picker').focusout(function () {
+    var start_date = new Date($('#time_start_picker').val())
+    var end_date = new Date($('#time_end_picker').val())
+    if (start_date >= end_date)  $('#time_end_picker').val("")
+  })

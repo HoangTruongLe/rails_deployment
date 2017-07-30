@@ -1,0 +1,33 @@
+doctype html
+html
+  head
+    meta content=('text/html; charset=UTF-8') http-equiv="Content-Type" /
+    title Requestoff
+    = csrf_meta_tags
+    = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
+    = javascript_include_tag 'application', 'data-turbolinks-track': 'reload'
+  body
+    .col-md-4.col-md-offset-4
+      .login-panel.panel.panel-default
+        .panel-heading
+          h4
+            = t('.sign_in', default: 'Sign in')
+        .panel-body
+          - if flash[:alert]
+            .alert.alert-danger
+              =  flash[:alert]
+          = form_for(resource, as: resource_name, url: session_path(resource_name), html: { role: 'form' }) do |f|
+            fieldset
+              .form-group
+                = f.label :email
+                = f.email_field :email, autofocus: true, class: 'form-control'
+              .form-group
+                = f.label :password
+                = f.password_field :password, autocomplete: 'off', class: 'form-control'
+              - if devise_mapping.rememberable?
+                .checkbox
+                  = f.label :remember_me do
+                    = f.check_box :remember_me
+                    = t('.remember_me', default: 'Remember me')
+              = f.submit  t('.sign_in', default: 'Sign in'), class: 'btn btn-lg btn-success btn-block'
+

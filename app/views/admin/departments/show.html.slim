@@ -1,0 +1,52 @@
+.row
+  .col-lg-12
+    p
+.row
+  .col-lg-12
+    .panel.panel-default
+      .panel-heading
+        | Department Detail
+      .panel-body
+        .table-responsive
+          table.table.table-striped.table-bordered.table-hover
+            colgroup
+              col width='30%'
+              col width='70%'
+            tr
+              th Name:
+              td = @department.name
+.row
+  .col-lg-12
+    .panel.panel-default
+      .panel-heading
+        | Users List
+      .panel-body
+        .table-responsive
+          table.table.table-striped.table-bordered.table-hover
+            thead
+              tr
+                th Image
+                th Name
+                th Dev
+                th Email
+                th Remaining Days
+            tbody
+              - @users.each do |user|
+                tr
+                  td
+                    - if user.avatar.present?
+                      = image_tag user.avatar.url(:thumb)
+                    - else
+                      = image_tag 'user_icon.png', height: 40
+                  td
+                    = link_to user.full_name, admin_user_path(user)
+                  td
+                    = user.position
+                  td
+                    = user.email
+                  td
+                    = user.remaining_days_off
+        .text-center
+          = will_paginate @users, renderer: BootstrapPagination::Rails
+
+

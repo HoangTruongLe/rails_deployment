@@ -1,0 +1,64 @@
+.col-lg-6
+  - if @user.errors.any?
+    .alert.alert-danger
+      - @user.errors.full_messages.each do |message|
+        li
+          = message
+  .form-group
+    = f.label_tag :first_name, nil, class: 'col-sm-3 control-label'
+    .col-sm-6
+      = f.text_field :first_name, class: 'form-control'
+  .form-group
+    = f.label_tag :last_name, nil, class: 'col-sm-3 control-label'
+    .col-sm-6
+      = f.text_field :last_name, class: 'form-control'
+  .form-group
+    = f.label_tag :email, nil, class: 'col-sm-3 control-label'
+    .col-sm-6
+      = f.text_field :email, class: 'form-control'
+  .form-group
+    = f.label_tag :password, nil, class: 'col-sm-3 control-label'
+    .col-sm-6
+      = f.password_field :password, class: 'form-control'
+  .form-group
+    = f.label_tag :gender, nil, class: 'col-sm-3 control-label'
+    .col-sm-6
+      = f.select :gender, User.gender.values, {}, {class: 'form-control'}
+  .form-group
+    = f.label_tag :position, nil, class: 'col-sm-3 control-label'
+    .col-sm-6
+      = f.select :position, User.position.values, {}, {class: 'form-control'}
+  .form-group
+    = f.label_tag :birth_date, nil, class: 'col-sm-3 control-label'
+    .col-sm-6
+      = f.text_field :birth_date, id: 'birth_date_picker', class: 'form-control', value: "#{format_date_vn(@user.birth_date)}"
+  .form-group
+    = f.label_tag :join_date, nil, class: 'col-sm-3 control-label'
+    .col-sm-6
+      = f.text_field :join_date, id: 'join_date_picker', class: 'form-control', value: "#{format_date_vn(@user.join_date)}"
+  .form-group
+    = f.label_tag :remaining_days_off, nil, class: 'col-sm-3 control-label'
+    .col-sm-6
+      = f.text_field :remaining_days_off, class: 'form-control'
+  .form-group
+    = f.label_tag :avatar, nil, class: 'col-sm-3 control-label'
+    .col-sm-6
+      = f.file_field :avatar
+  .form-group
+    = f.label_tag :department_id, nil, class: 'col-sm-3 control-label'
+    .col-sm-6
+      = f.select(:department_id, Department.all.pluck(:name, :id), {include_blank: 'choose department'}, {class: 'form-control'})
+  .form-group
+    = f.label_tag :chatwork_id, nil, class: 'col-sm-3 control-label'
+    .col-sm-6
+      = f.text_field :chatwork_id, class: 'form-control'
+  .form-group
+    .col-sm-3
+    .col-sm-6
+      - if action_name == 'new' || action_name == 'create'
+        = f.submit 'Create', class: 'btn btn-primary'
+      - else
+        = f.submit 'Update', class: 'btn btn-primary'
+javascript:
+  $('#birth_date_picker').datetimepicker({timepicker: false, format: 'Y/m/d'});
+  $('#join_date_picker').datetimepicker({timepicker: false, format: 'Y/m/d'});

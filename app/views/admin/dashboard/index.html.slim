@@ -1,0 +1,82 @@
+br
+.row
+  .col-lg-8
+    .row
+      .col-lg-12
+        .panel.panel-default
+          .panel-heading
+            | Waiting Requests
+          .panel-body
+            .table-responsive
+              table.table.table-striped.table-bordered.table-hover
+                colgroup
+                  col width='25%'
+                  col width='35%'
+                  col width='25%'
+                  col width='15%'
+                thead
+                  tr
+                    th.text-center User Name
+                    th.text-center Time Start - Time End
+                    th.text-center Assign to
+                    th.text-center &nbsp;
+                tbody
+                  - @request_off_waittings.each do |request|
+                    tr
+                      td
+                        = request.user.full_name
+                      td.text-center
+                        = "#{format_date_time_vn(request.time_start)} - #{format_date_time_vn(request.time_end)}"
+                      td
+                        = User.find_by_id(request.status_update_by).try(:full_name)
+                      td.text-center
+                        = link_to 'View Detail', admin_request_off_path(request), class: "view_detail", data: {toggle: 'tooltip'}, title: "#{request.reason}"
+            .text-center
+              = will_paginate(@request_off_waittings, renderer: BootstrapPagination::Rails)
+    .row
+      .col-lg-12
+        .panel.panel-default
+          .panel-heading
+            | Users have many days off
+          .panel-body
+            .table-responsive
+              table.table.table-striped.table-bordered.table-hover
+                thead
+                  tr
+                    th.text-center User Name
+                    th.text-center Total hours
+                tbody
+                  - @list_user_many_day_off.each do |request|
+                    tr
+                      td
+
+                        = User.find(request[:user_id]).full_name
+                      td.text-center
+                        = request[:total_hours]
+
+  .col-lg-4
+    .row
+      .col-lg-12
+        .panel.panel-default
+          .panel-heading
+            | Today's absences
+          .panel-body
+            .table-responsive
+              table.table.table-striped.table-bordered.table-hover
+                thead
+                  tr
+                    th.text-center User Name
+                    th.text-center Time Start - Time End
+                tbody
+                  - @list_user_off_to_day.each do |request|
+                    tr
+                      td
+                        = request.user.full_name
+                        td.text-center
+                          = "#{format_date_time_vn(request.time_start)} - #{format_date_time_vn(request.time_end)}"
+
+javascript:
+  $('[data-toggle="tooltip"]').tooltip();
+  $('.view_detail').unbind('click').bind("click", function () {
+    $('.tooltip').remove();
+  });
