@@ -80,6 +80,7 @@ class RequestOff < ApplicationRecord
       message_body += "Reason: #{reason}\n"
       message_body += "Detail: #{ENV['REQUEST_ADMIN']}/#{id}"
     end
+
     ChatWork::Message.create room_id: ENV['ROOM_ID'], body: message_body
   end
 

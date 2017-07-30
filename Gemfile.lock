@@ -327,7 +327,10 @@ DEPENDENCIES
   bullet (~> 5.6)
   byebug
   capistrano (~> 3.7, >= 3.7.1)
+<<<<<<< HEAD
   capistrano-figaro-yml
+=======
+>>>>>>> fe58ed16fdf9e38dbdd885e15b1861639c5fb0db
   capistrano-passenger (~> 0.2.0)
   capistrano-rails (~> 1.2)
   capistrano-rbenv (~> 2.1)
