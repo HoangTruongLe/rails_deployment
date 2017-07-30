@@ -1,0 +1,48 @@
+nav.navbar.navbar-default.navbar-static-top role="navigation" style=("margin-bottom: 0")
+  .navbar-header
+    button.navbar-toggle data-target=".navbar-collapse" data-toggle="collapse" type="button"
+      span.sr-only Toggle navigation
+      span.icon-bar
+      span.icon-bar
+      span.icon-bar
+    a.navbar-brand href="#{root_path}"  NeoLab HCM
+  ul.nav.navbar-top-links.navbar-right
+    li
+      - if current_user.avatar.present?
+        = image_tag current_user.avatar.url(:thumb), class: 'img-rounded', height: 35
+      | #{current_user.full_name}
+    li
+      - if current_user.role == 'admin'
+        a href="#{admin_path}"
+          | Admin page
+    li.dropdown
+      a.dropdown-toggle data-toggle="dropdown" href="#"
+        i.fa.fa-user.fa-fw
+        i.fa.fa-caret-down
+      ul.dropdown-menu.dropdown-user
+        li
+          a href="#{user_profile_path}"
+            i.fa.fa-user.fa-fw
+            | My Profile
+
+        li
+          = link_to(destroy_user_session_path, method: :delete) do
+            i.fa.fa-sign-out.fa-fw
+            | Log out
+          end
+  .navbar-default.sidebar role="navigation"
+    .sidebar-nav.navbar-collapse
+      ul#side-menu.nav.in
+        li
+          a class="#{request.path == root_path ? 'active':''}" href="#{root_path}"
+            i.fa.fa-dashboard.fa-fw
+            | Dashboard
+        li
+          a class="#{request.path == user_profile_path ? 'active' : ''}" href="#{user_profile_path}"
+            i.fa.fa-user.fa-fw
+            | My Profile
+        li
+          = link_to(destroy_user_session_path, method: :delete) do
+            i.fa.fa-sign-out.fa-fw
+            | Log out
+          end

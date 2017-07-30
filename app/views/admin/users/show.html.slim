@@ -1,0 +1,85 @@
+.row
+  .col-lg-12
+   p
+.row
+  .col-lg-12
+    .panel.panel-default
+      .panel-heading
+        | User Detail
+      .panel-body
+        .table-responsive
+          table.table.table-striped.table-bordered.table-hover.user_detail
+            tr
+              th Name:
+              td = @user.full_name
+            tr
+              th Image:
+              td
+                - if @user.avatar.present?
+                  = image_tag @user.avatar.url(:thumb)
+                - else
+                  = image_tag 'user_icon.png', height: 40
+            tr
+              th Email:
+              td = @user.email
+            tr
+              th Birthday:
+              td = format_date_vn(@user.birth_date)
+            tr
+              th Gender:
+              td = @user.gender
+            tr
+              th Position:
+              td = @user.position
+            tr
+              th Join Date:
+              td = format_date_vn(@user.join_date)
+            tr
+              th Department:
+              td = @user.department.try(:name)
+            tr
+              th ChatWork ID:
+              td = @user.chatwork_id
+.row
+  .col-lg-12
+    .panel.panel-default
+      .panel-heading
+        | Request List
+      .panel-body
+        .table-responsive
+          table.table.table-striped.table-bordered.table-hover
+            thead
+              tr
+                th Time Start
+                th Time End
+                th Total Hour
+                th Reason
+                th Status
+                th Assign to
+            tbody
+              - @request_off.each do |request_off|
+                tr
+                  td
+                    = format_date_time_vn(request_off.time_start)
+                  td
+                    = format_date_time_vn(request_off.time_end)
+                  td
+                    = request_off.total_hours
+                  td
+                    = link_to 'View Detail', admin_request_off_path(request_off), class: "detail_reason", data: {toggle: 'tooltip'}, title: "#{request_off.reason}"
+                  td
+                    span.btn-sm class="#{status_css_color(request_off.status)}"
+                      = request_off.status
+                  td
+                    = User.find_by(id: request_off.status_update_by).try(:full_name)
+                    | &nbsp;
+                    = format_date_time_vn(request_off.status_update_at)
+        .text-center
+          = will_paginate @request_off, renderer: BootstrapPagination::Rails
+
+javascript:
+  $('[data-toggle="tooltip"]').tooltip();
+  $('.detail_reason').unbind('click').bind("click",function() {
+    $('.tooltip').remove();
+  });
+  $('.user_detail th').css('text-align', 'right');

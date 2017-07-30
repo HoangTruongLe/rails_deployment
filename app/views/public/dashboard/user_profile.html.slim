@@ -1,0 +1,77 @@
+- if flash[:success].present?
+  .alert class="alert-success"
+    = flash[:success]
+br
+  row
+    .col-lg-12
+      .panel.panel-default
+        .panel-heading
+          | User Profile
+          .pull-right
+            = link_to 'Back', root_path, class: "btn btn-info"
+          p
+        .panel-body
+          .table-responsive
+            table.table.table-striped.table-bordered.table-hover
+              colgroup
+                col width='20%'
+                col width='80%'
+              tr
+                th.text-right Avatar:
+                td
+                  - if @user.avatar.present?
+                    = image_tag @user.avatar.url(:thumb)
+                  - else
+                    = image_tag 'user_icon.png', height: 100
+              tr
+                th.text-right Name:
+                td = @user.full_name
+              tr
+                th.text-right Email:
+                td = @user.email
+              tr
+                th.text-right Birthday:
+                td = format_date_vn(@user.birth_date)
+              tr
+                th.text-right Gender:
+                td = @user.gender
+              tr
+                th.text-right Position:
+                td = @user.position
+              tr
+                th.text-right Join Date:
+                td = format_date_vn(@user.join_date)
+              tr
+                th.text-right Department:
+                td = @user.department.try(:name)
+              tr
+                th.text-right ChatWork ID:
+                td = @user.chatwork_id
+br
+  row
+    .col-lg-12
+      .panel.panel-default
+        .panel-heading
+          | Change Password
+        .panel-body
+          = form_for @user, url: update_password_user_path, method: :post do |f|
+            - if @user.errors.any?
+              .row
+                .col-lg-6
+                  .alert.alert-danger
+                    - @user.errors.full_messages.each do |message|
+                      li
+                        = message
+            .form-group
+              .row
+                .col-lg-6
+                  = label_tag :current_password
+                  = password_field_tag :current_password, params[:current_password], class: 'form-control'
+                  br
+                  = f.label :password, 'New Password'
+                  = f.password_field :password, class: 'form-control'
+                  br
+                  = f.label :password_confirmation, 'Confirm New Password'
+                  = f.password_field :password_confirmation, class: 'form-control'
+                  br
+                  = f.submit 'Save', class: 'btn btn-info'

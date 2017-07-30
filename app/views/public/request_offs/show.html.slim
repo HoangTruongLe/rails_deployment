@@ -1,0 +1,77 @@
+br
+.row
+  .col-lg-12
+    .panel class="#{status_css_color_panel(@request_off.status)}"
+      .panel-heading
+        = link_to @request_off.user.try(:full_name), admin_user_path(@request_off.user), class: "btn btn-info"
+        .pull-right
+          = link_to 'Back', request_offs_path, class: "btn btn-info"
+      .panel-body
+        .row
+          .col-md-6
+            p
+              strong Time Start:
+              | &nbsp;
+              = format_date_time_vn(@request_off.time_start)
+            p
+              strong Time End:
+              | &nbsp;
+              = format_date_time_vn(@request_off.time_end)
+            p
+              strong Total hour:
+              | &nbsp;
+              = @request_off.total_hours
+            p
+              strong Status:
+              | &nbsp;
+              span.btn-sm class="#{status_css_color(@request_off.status)}"= @request_off.status
+              - if @request_off.status_update_at
+                p
+                  strong Status update at:
+                  | &nbsp;
+                  = format_date_time_vn(@request_off.status_update_at)
+                p
+                  strong Status update by:
+                  | &nbsp;
+                  = User.find_by_id(@request_off.status_update_by).try(:full_name)
+          .col-md-6
+            p
+              strong Reason:
+              .reason = @request_off.reason
+            - if @request_off.status == 'rejected'
+              p
+                strong Reason Reject:
+                .reason style="color: red;" = @request_off.comment
+
+      .panel-footer.text-center
+        - if @request_off.status != 'accepted' && @request_off.status != 'canceled' && @request_off.status != 'rejected'
+          = link_to 'Edit', edit_request_off_path(@request_off), class: "btn btn-warning"
+          | &nbsp; &nbsp;
+          = link_to 'Cancel', '', class: 'btn btn-danger', onclick: "show_modal_confirm(#{@request_off.id});", data: {id: @request_off.id, toggle: 'modal'}
+
+#confirm.modal.fade role="dialog"
+  .modal-dialog
+    .modal-content
+      .modal-header
+        button.close data-dismiss="modal" type="button"  &times;
+        span#error style="color: red;"
+        h4.modal-title Confirm Cancel Request
+        input.hidden#request_id type="text" value=""
+      .modal-footer
+        button.btn.btn-default data-dismiss="modal" type="button"  Close
+        button.btn.btn-danger#confirm_request data-dismiss="modal" type="button"  Ok
+javascript:
+  $('#confirm_request').unbind('click').bind('click', function () {
+    var id = $('#request_id').val();
+    $.ajax({
+      method: 'GET',
+      url: "/request_offs/" + id + '/cancel',
+      success: function (res) {
+        location.reload();
+      }
+    });
+  });
+  function show_modal_confirm(id) {
+    $('#confirm').modal('show');
+    $('#request_id').val(id);
+  }

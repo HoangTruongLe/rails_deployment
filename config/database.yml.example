@@ -1,0 +1,29 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+  username: postgres
+  password: postgres
+  host: localhost
+
+development:
+  <<: *default
+  database: request_off_dev
+  username: postgres
+  password: postgres
+  host: localhost
+
+test:
+  <<: *default
+  database: request_off_test
+  username: postgres
+  password: postgres
+  host: localhost
+
+production:
+  <<: *default
+  host: <%= ENV['REQUEST_OFF_HOST'] %>
+  database: <%= ENV['REQUEST_OFF_DATABASE'] %>
+  username: <%= ENV['REQUEST_OFF_USER'] %>
+  password: <%= ENV['REQUEST_OFF_PASSWORD'] %>
+  pool: <%= ENV["REQUEST_OFF_POOL"] || ENV['MAX_THREADS'] || 5 %>
